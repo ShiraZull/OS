@@ -1,6 +1,7 @@
 import os
-USERLOGIN = os.getlogin()
-DIRECTORY = 'C:/Users/' + USERLOGIN + '/Downloads'
+import shutil
+
+DIRECTORY = 'C:/Users/' + os.getlogin() + '/Downloads'
 DIR_RULES = {
     "_Folders":{},
     "Documents":{".pdf", ".docx"},
@@ -36,3 +37,16 @@ for dir_name in DIR_RULES:
     elif dir_name == '_Folders':
         if folder_count > len(DIR_RULES):
             print(file_count, '-', folder_count, ':', len(DIR_RULES))
+            for entry in os.scandir(DIRECTORY):
+                valid = False
+                if entry.is_dir():
+                    for white_listed_entry in DIR_RULES:
+                        if entry.name == white_listed_entry:
+                            print("entry", entry.name, "white", white_listed_entry)
+                            valid = True
+                            break
+                    if valid:
+                        continue
+                    else:
+                        shutil.move(entry.path, DIRECTORY+'/_Folders')
+                        print("move", entry.path, "to", DIRECTORY+'/_Folders')
