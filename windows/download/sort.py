@@ -1,6 +1,8 @@
 import os
 import shutil
+import time
 
+DELAY = 60*60*24*7
 DIRECTORY = 'C:/Users/' + os.getlogin() + '/Downloads'
 DIR_RULES = {
     "_Folders":{},
@@ -44,10 +46,11 @@ def group_folders(folder_count):
 
 def group_files(dir_name):
     for entry in os.scandir(DIRECTORY):
-        for dir_rule in DIR_RULES[dir_name]:
-            if entry.name.endswith(dir_rule):
-                move(entry.path, DIRECTORY+'/'+dir_name, dir_rule)
-                break
+        if entry.stat().st_ctime + DELAY < time.time():
+            for dir_rule in DIR_RULES[dir_name]:
+                if entry.name.endswith(dir_rule):
+                    move(entry.path, DIRECTORY+'/'+dir_name, dir_rule)
+                    break
 
 def move(src, dst, dir_rule):
     filename = os.path.basename(src)
@@ -64,7 +67,6 @@ def move(src, dst, dir_rule):
         parentpath = src[:-len(filename)]
         os.rename(parentpath+filename, parentpath+newfilename)
         src = parentpath+newfilename
-    
     shutil.move(src, dst)
 
 for dir_name in DIR_RULES:
@@ -75,6 +77,5 @@ for dir_name in DIR_RULES:
         print("created", dir_name)
     if rule_count:
         group_files(dir_name)
-    # Get irrelevant folders into 
     elif dir_name == '_Folders':
         group_folders(folder_count)
