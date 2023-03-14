@@ -26,6 +26,28 @@ for thing in DIR_RULES:
     for thinginthing in DIR_RULES[thing]:
         print(thinginthing)
 
+def group_folders(folder_count):
+    if folder_count > len(DIR_RULES):
+        for entry in os.scandir(DIRECTORY):
+            valid = False
+            if entry.is_dir():
+                for white_listed_entry in DIR_RULES:
+                    if entry.name == white_listed_entry:
+                        valid = True
+                        break
+                if valid:
+                    continue
+                else:
+                    shutil.move(entry.path, DIRECTORY+'/_Folders')
+                    print("move", entry.path, "to", DIRECTORY+'/_Folders')
+
+def group_files(dir_name):
+    for entry in os.scandir(DIRECTORY):
+        for dir_rule in DIR_RULES[dir_name]:
+            if entry.name.endswith(dir_rule):
+                shutil.move(entry.path, DIRECTORY+'/'+dir_name)
+                break
+
 for dir_name in DIR_RULES:
     dir_full = DIRECTORY + '/' + dir_name
     rule_count = len(DIR_RULES[dir_name])
@@ -34,19 +56,6 @@ for dir_name in DIR_RULES:
         print("created", dir_name)
     if rule_count:
         print(rule_count)
+    # Get irrelevant folders into 
     elif dir_name == '_Folders':
-        if folder_count > len(DIR_RULES):
-            print(file_count, '-', folder_count, ':', len(DIR_RULES))
-            for entry in os.scandir(DIRECTORY):
-                valid = False
-                if entry.is_dir():
-                    for white_listed_entry in DIR_RULES:
-                        if entry.name == white_listed_entry:
-                            print("entry", entry.name, "white", white_listed_entry)
-                            valid = True
-                            break
-                    if valid:
-                        continue
-                    else:
-                        shutil.move(entry.path, DIRECTORY+'/_Folders')
-                        print("move", entry.path, "to", DIRECTORY+'/_Folders')
+        group_folders(folder_count)
