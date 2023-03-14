@@ -6,10 +6,11 @@ DIR_RULES = {
     "_Folders":{},
     "Documents":{".pdf", ".docx"},
     "Images":{".gif", ".png", ".jpg"},
-    "Videos":{".mp4", ".mkv", ".webm"},
+    "Videos":{".mp4", ".mkv", ".webm", ".mov"},
     "Sound":{".mp3", ".wav", ".webm"},
-    "Executables":{".exe", ".msi"},
+    "Executables":{".exe", ".msi", ".iso"},
     "Compressed":{".zip", ".rar", ".7z", ".tar.gz"},
+    "DataSheets":{".csv", ".json", ".xlsx", ".xls", ".xlsm"},
     }
 
 entries = os.scandir(DIRECTORY)
@@ -38,15 +39,33 @@ def group_folders(folder_count):
                 if valid:
                     continue
                 else:
-                    shutil.move(entry.path, DIRECTORY+'/_Folders')
-                    print("move", entry.path, "to", DIRECTORY+'/_Folders')
+                    move(entry.path, DIRECTORY+'/_Folders', "")
+                    print("moved", entry.path, "to", DIRECTORY+'/_Folders')
 
 def group_files(dir_name):
     for entry in os.scandir(DIRECTORY):
         for dir_rule in DIR_RULES[dir_name]:
             if entry.name.endswith(dir_rule):
-                shutil.move(entry.path, DIRECTORY+'/'+dir_name)
+                move(entry.path, DIRECTORY+'/'+dir_name, dir_rule)
                 break
+
+def move(src, dst, dir_rule):
+    filename = os.path.basename(src)
+    newfilename = filename
+    count = 0
+    while True:
+        if os.path.exists(dst+'/'+newfilename):
+            count += 1
+            extention = " ("+str(count)+")"
+            newfilename = filename[:(-len(dir_rule)) if len(dir_rule) else (len(filename)) ] + extention + dir_rule
+        else:
+            break
+    if count:
+        parentpath = src[:-len(filename)]
+        os.rename(parentpath+filename, parentpath+newfilename)
+        src = parentpath+newfilename
+    
+    shutil.move(src, dst)
 
 for dir_name in DIR_RULES:
     dir_full = DIRECTORY + '/' + dir_name
@@ -55,7 +74,7 @@ for dir_name in DIR_RULES:
         os.mkdir(dir_full)
         print("created", dir_name)
     if rule_count:
-        print(rule_count)
+        group_files(dir_name)
     # Get irrelevant folders into 
     elif dir_name == '_Folders':
         group_folders(folder_count)
