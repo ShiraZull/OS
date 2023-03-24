@@ -1,3 +1,6 @@
+# Project inspired by "Internet Made Coder"
+# https://youtu.be/NCvI-K0Gp90
+
 import os
 import shutil
 import time
