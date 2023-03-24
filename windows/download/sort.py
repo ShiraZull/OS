@@ -1,6 +1,8 @@
 import os
 import shutil
 import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 DELAY = 60*60*24*7 #Time where files are accessable in downloads directly
 DIRECTORY = 'C:/Users/' + os.getlogin() + '/Downloads'
@@ -46,13 +48,31 @@ def move(src, dst, dir_rule):
         src = parentpath+newfilename
     shutil.move(src, dst)
 
-for dir_name in DIR_RULES:
-    dir_full = DIRECTORY + '/' + dir_name
-    rule_count = len(DIR_RULES[dir_name])
-    if os.path.exists(dir_full) == 0:
-        os.mkdir(dir_full)
-        print("created", dir_name)
-    if rule_count:
-        group_files(dir_name)
-    elif dir_name == '_Folders':
-        group_folders()
+def sort_download_directory():
+    for dir_name in DIR_RULES:
+        dir_full = DIRECTORY + '/' + dir_name
+        rule_count = len(DIR_RULES[dir_name])
+        if os.path.exists(dir_full) == 0:
+            os.mkdir(dir_full)
+            print("created", dir_name)
+        if rule_count:
+            group_files(dir_name)
+        elif dir_name == '_Folders':
+            group_folders()
+
+class MoverHandler(FileSystemEventHandler):
+    def on_modified(self, event):
+        sort_download_directory()
+
+if __name__ == "__main__":
+    path = DIRECTORY
+    event_handler = MoverHandler()
+    observer = Observer()
+    observer.schedule(event_handler, path, recursive=True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
