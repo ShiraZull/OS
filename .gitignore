@@ -1,1 +1,4 @@
 tmp.*
+windows/backup.json
+windows/backup.txt
+windows/onboot.bat
