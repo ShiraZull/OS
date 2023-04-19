@@ -67,15 +67,16 @@ class MoverHandler(FileSystemEventHandler):
     def on_modified(self, event):
         sort_download_directory()
 
-if __name__ == "__main__":
-    path = DIRECTORY
-    event_handler = MoverHandler()
-    observer = Observer()
-    observer.schedule(event_handler, path, recursive=True)
-    observer.start()
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
+sort_download_directory()
+# if __name__ == "__main__":
+#     path = DIRECTORY
+#     event_handler = MoverHandler()
+#     observer = Observer()
+#     observer.schedule(event_handler, path, recursive=True)
+#     observer.start()
+#     try:
+#         while True:
+#             time.sleep(1)
+#     except KeyboardInterrupt:
+#         observer.stop()
+#     observer.join()
