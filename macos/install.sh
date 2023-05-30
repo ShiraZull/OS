@@ -22,6 +22,7 @@ packages=(
 	flutter
 	docker
 	gitlab-runner
+	warp
 )
 
 brew install "${packages[@]}"
